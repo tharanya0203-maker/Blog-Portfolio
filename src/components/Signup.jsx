@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import auth from '../config/firebase';
+
 
 function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate(); // Hook from React Router for navigation
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -17,10 +20,15 @@ function Signup() {
             return;
         }
 
-        // Simulate user registration process
-        console.log('User registered:', { email, password });
-        // After registration, redirect to the login page
-        navigate('/login'); // Replace '/login' with your login page route
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((res) => {
+                console.log(res);
+                navigate('/login'); // move inside success block
+            })
+            .catch((err) => {
+                console.log("Failed to add user", err);
+                setError("Failed to register user");
+            });
     };
 
     return (
@@ -58,8 +66,13 @@ function Signup() {
                     />
                     {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                 </div>
-                <p className='text-blue-600 cursor-pointer my-2' onClick={() => navigate("/login")}> Already have an account? Login here</p>
-                <button type="submit" className="bg-orange-400 text-white py-2 px-4 rounded hover:bg-orange-600 transition duration-200 ease-in-out">
+                <p className='text-blue-600 cursor-pointer my-2' onClick={() => navigate("/login")}>
+                    Already have an account? Login here
+                </p>
+                <button
+                    type="submit"
+                    className="bg-orange-400 text-white py-2 px-4 rounded hover:bg-orange-600 transition duration-200 ease-in-out"
+                >
                     Register
                 </button>
             </form>
